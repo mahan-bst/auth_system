@@ -145,5 +145,33 @@ app.post("/api/auth/verify", (req: express.Request, res: express.Response) => {
     return res.json({ err: "please enter correct values" });
   }
 });
+const authjwt = (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
+  const header = req.headers.authorization;
+  if (!header) return res.json({ err: true });
+  const token = header.split(" ")[1];
+  jwt.verify(token, jwtToken, (err, decoded) => {
+    if (err) return res.json({ err: true });
+
+    req.userID = decoded;
+    next();
+  });
+};
+
+app.get("/api/auth/info", authjwt, (req, res) => {
+  User.find({ _id: req.userID }, (err, docs) => {
+    if (err) return res.json({ err: true });
+    if (docs.length > 0) {
+      res.json({
+        username: docs[0].get("username"),
+        email: docs[0].get("email"),
+      });
+    }
+  });
+});
+
 // run server on port
 app.listen(port, () => console.log(`Im running on port ${port}`));
