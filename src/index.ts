@@ -7,7 +7,6 @@ import joiValid from "./joiValidation";
 
 import jwtToken from "./jwtToken";
 import User from "./models/User";
-import { string } from "joi";
 const app = express();
 
 const port = process.env.PORT || 8000;
