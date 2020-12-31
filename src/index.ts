@@ -32,21 +32,20 @@ interface respType {
 app.use(parser.json());
 // connect to mongo db
 
-connect(process.env.MONGODB_URI!) ||
-  connect(
-    "mongodb://localhost:27017/test",
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    },
-    (err) => {
-      if (!err) {
-        console.log("db is ok!!");
-      } else {
-        console.log(err);
-      }
+connect(
+  "mongodb://localhost:27017/test" || process.env.MONGODB_URI,
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  },
+  (err) => {
+    if (!err) {
+      console.log("db is ok!!");
+    } else {
+      console.log(err);
     }
-  );
+  }
+);
 
 // frontend post email password and username we check for unique and make a coluumn and return jwt if its not unique err
 app.post("/api/auth/create", (req: express.Request, res: express.Response) => {
