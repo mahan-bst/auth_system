@@ -4,7 +4,7 @@ import { connect } from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import joiValid from "./joiValidation";
-
+require("dotenv").config();
 import jwtToken from "./jwtToken";
 import User from "./models/User";
 const app = express();
@@ -31,20 +31,22 @@ interface respType {
 // middlewares
 app.use(parser.json());
 // connect to mongo db
-connect(
-  "mongodb://localhost:27017/test",
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  },
-  (err) => {
-    if (!err) {
-      console.log("db is ok!!");
-    } else {
-      console.log(err);
+
+connect(process.env.MONGODB_URI!) ||
+  connect(
+    "mongodb://localhost:27017/test",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    },
+    (err) => {
+      if (!err) {
+        console.log("db is ok!!");
+      } else {
+        console.log(err);
+      }
     }
-  }
-);
+  );
 
 // frontend post email password and username we check for unique and make a coluumn and return jwt if its not unique err
 app.post("/api/auth/create", (req: express.Request, res: express.Response) => {
