@@ -9,6 +9,7 @@ var mongoose_1 = require("mongoose");
 var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 var bcrypt_1 = __importDefault(require("bcrypt"));
 var joiValidation_1 = __importDefault(require("./joiValidation"));
+require("dotenv").config();
 var jwtToken_1 = __importDefault(require("./jwtToken"));
 var User_1 = __importDefault(require("./models/User"));
 var app = express_1.default();
@@ -21,7 +22,7 @@ var salt = 12;
 // middlewares
 app.use(body_parser_1.default.json());
 // connect to mongo db
-mongoose_1.connect("mongodb://localhost:27017/test", {
+mongoose_1.connect("mongodb://localhost:27017/test" || process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 }, function (err) {
