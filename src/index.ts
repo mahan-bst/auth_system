@@ -33,7 +33,7 @@ app.use(parser.json());
 // connect to mongo db
 
 connect(
-  "mongodb://localhost:27017/test" || process.env.MONGODB_URI,
+  process.env.MONGODB_URI || "mongodb://localhost:27017/test",
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,

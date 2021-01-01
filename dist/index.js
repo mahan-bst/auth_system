@@ -22,7 +22,7 @@ var salt = 12;
 // middlewares
 app.use(body_parser_1.default.json());
 // connect to mongo db
-mongoose_1.connect("mongodb://localhost:27017/test" || process.env.MONGODB_URI, {
+mongoose_1.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/test", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 }, function (err) {
