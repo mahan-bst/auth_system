@@ -66,16 +66,20 @@ app.post("/api/auth/create", (req: express.Request, res: express.Response) => {
       };
 
       const user = new User(userInfo);
-      user.save();
-      const resp: respType = {
-        username: body.username,
-        email: body.email,
-        jwtToken: jwt.sign(user._id.toString(), jwtToken),
-      };
-
-      res.json(resp);
+      user.save((error) => {
+        if (error) {
+          res.json(error.message);
+        } else {
+          const resp: respType = {
+            username: body.username,
+            email: body.email,
+            jwtToken: jwt.sign(user._id.toString(), jwtToken),
+          };
+          res.json(resp);
+        }
+      });
     } else {
-      res.json({ err: err });
+      res.json(err);
     }
   });
 });
