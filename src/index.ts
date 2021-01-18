@@ -3,6 +3,7 @@ import parser, { json } from "body-parser";
 import { connect } from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import rateLimiter from "express-rate-limit";
 import joiValid from "./joiValidation";
 require("dotenv").config();
 import jwtToken from "./jwtToken";
@@ -27,6 +28,14 @@ interface respType {
 //
 //
 //
+
+const verifyLimiter = rateLimiter({
+  windowMs: 60 * 1000, // 1 min window
+  max: 6, // start blocking after 6 requests
+  message:
+    "Too many Request"
+})
+
 
 // middlewares
 app.use(parser.json());
@@ -85,7 +94,7 @@ app.post("/api/auth/create", (req: express.Request, res: express.Response) => {
 });
 
 // front end post username and password and we check and return if true jwt if not true err
-app.post("/api/auth/verify", (req: express.Request, res: express.Response) => {
+app.post("/api/auth/verify", verifyLimiter ,(req: express.Request, res: express.Response) => {
   //post body
   const body = req.body;
   //check "username" and "password " is exist
