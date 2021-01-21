@@ -32,10 +32,8 @@ interface respType {
 const verifyLimiter = rateLimiter({
   windowMs: 60 * 1000, // 1 min window
   max: 6, // start blocking after 6 requests
-  message:
-    "Too many Request"
-})
-
+  message: "Too many Request",
+});
 
 // middlewares
 app.use(parser.json());
@@ -94,70 +92,74 @@ app.post("/api/auth/create", (req: express.Request, res: express.Response) => {
 });
 
 // front end post username and password and we check and return if true jwt if not true err
-app.post("/api/auth/verify", verifyLimiter ,(req: express.Request, res: express.Response) => {
-  //post body
-  const body = req.body;
-  //check "username" and "password " is exist
-  if (body.username && body.password) {
-    // check typeof password and username
-    if (
-      typeof body.username !== "string" ||
-      typeof body.password !== "string"
-    ) {
+app.post(
+  "/api/auth/verify",
+  verifyLimiter,
+  (req: express.Request, res: express.Response) => {
+    //post body
+    const body = req.body;
+    //check "username" and "password " is exist
+    if (body.username && body.password) {
+      // check typeof password and username
+      if (
+        typeof body.username !== "string" ||
+        typeof body.password !== "string"
+      ) {
+        return res.json({ err: "please enter correct values" });
+      }
+      // check "username" is username or email
+      // if is_email = -1 means its username if is_email != -1 means its username
+      const is_email: number = body.username.search(/^.*@.*$/);
+      if (is_email == -1) {
+        // its username
+        User.find({ username: body.username }, (err, docs) => {
+          if (docs.length > 0) {
+            const passHash = docs[0].get("password");
+
+            bcrypt.compare(body.password, passHash, (err, is_same) => {
+              if (!err) {
+                if (is_same) {
+                  return res.json({
+                    valid: true,
+                    jwtToken: jwt.sign(docs[0]._id.toString(), jwtToken),
+                  });
+                } else {
+                  return res.json({ valid: false });
+                }
+              }
+            });
+          } else {
+            return res.json({ valid: false });
+          }
+        });
+      } else {
+        // its email
+        User.find({ email: body.username }, (err, docs) => {
+          if (docs.length > 0) {
+            const passHash = docs[0].get("password");
+
+            bcrypt.compare(body.password, passHash, (err, is_same) => {
+              if (!err) {
+                if (is_same) {
+                  return res.json({
+                    valid: true,
+                    jwtToken: jwt.sign(docs[0]._id.toString(), jwtToken),
+                  });
+                } else {
+                  return res.json({ valid: false });
+                }
+              }
+            });
+          } else {
+            return res.json({ valid: false });
+          }
+        });
+      }
+    } else {
       return res.json({ err: "please enter correct values" });
     }
-    // check "username" is username or email
-    // if is_email = -1 means its username if is_email != -1 means its password
-    const is_email: number = body.username.search(/^.*@.*$/);
-    if (is_email == -1) {
-      // its username
-      User.find({ username: body.username }, (err, docs) => {
-        if (docs.length > 0) {
-          const passHash = docs[0].get("password");
-
-          bcrypt.compare(body.password, passHash, (err, is_same) => {
-            if (!err) {
-              if (is_same) {
-                return res.json({
-                  valid: true,
-                  jwtToken: jwt.sign(docs[0]._id.toString(), jwtToken),
-                });
-              } else {
-                return res.json({ valid: false });
-              }
-            }
-          });
-        } else {
-          return res.json({ valid: false });
-        }
-      });
-    } else {
-      // its email
-      User.find({ email: body.username }, (err, docs) => {
-        if (docs.length > 0) {
-          const passHash = docs[0].get("password");
-
-          bcrypt.compare(body.password, passHash, (err, is_same) => {
-            if (!err) {
-              if (is_same) {
-                return res.json({
-                  valid: true,
-                  jwtToken: jwt.sign(docs[0]._id.toString(), jwtToken),
-                });
-              } else {
-                return res.json({ valid: false });
-              }
-            }
-          });
-        } else {
-          return res.json({ valid: false });
-        }
-      });
-    }
-  } else {
-    return res.json({ err: "please enter correct values" });
   }
-});
+);
 const authjwt = (
   req: express.Request,
   res: express.Response,
